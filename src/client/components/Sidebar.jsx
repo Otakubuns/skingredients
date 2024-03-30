@@ -2,28 +2,39 @@ import CheckboxList from "./CheckboxList.jsx";
 import {useEffect, useState} from "react";
 import {Link, NavLink} from "react-router-dom";
 
-function Sidebar({brands = [], onFilterChange}) {
+function Sidebar({brands = [], onFilterChange, currentCategory}) {
     const [categories, setCategories] = useState([]);
 
+    console.log('currentCategory', currentCategory);
     useEffect(() => {
-        fetch('http://localhost:3002/categories')
-            .then(response => response.json())
-            .then(data => {
-                setCategories(data);
-            });
-    }, []);
+        if (currentCategory === undefined) {
+            fetch('http://localhost:3002/categories')
+                .then(response => response.json())
+                .then(data => {
+                    setCategories(data);
+                });
+        } else {
+            setCategories([]);
+        }
+    }, [currentCategory]);
 
     return (
         <div className="sidebar p-4 rounded-box">
-            <h1 className="pt-10 font-semibold text-xl">Skincare</h1>
+            {currentCategory && (
+                <h1 className="pt-10 font-semibold text-xl">{currentCategory}</h1>
+            )}
             {categories.length > 0 && (
-                <ul className="pt-8">
-                    {categories.map((category, index) => (
-                        <li key={index} className="pb-2">
-                            <Link to={"/category/" + category.ProductTypeName}>{category.ProductTypeName} ({category.TotalProducts})</Link>
-                        </li>
-                    ))}
-                </ul>
+                <>
+                    <h1 className="pt-10 font-semibold text-xl">Skincare</h1>
+                    <ul className="pt-8">
+                        {categories.map((category, index) => (
+                            <li key={index} className="pb-2">
+                                <Link
+                                    to={"/category/" + category.ProductTypeName}>{category.ProductTypeName} ({category.TotalProducts})</Link>
+                            </li>
+                        ))}
+                    </ul>
+                </>
             )}
             <ul className="pt-3">
                 <li className="pb-3 pt-3 border-b">

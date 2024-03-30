@@ -8,6 +8,8 @@ function RoutineCreator() {
         </Helmet>
 
       <h1>Routine Creator</h1>
+
+        <button className="btn btn-lg  rounded-2xl">✨Recommended Routines</button>
     </div>
   );
 }

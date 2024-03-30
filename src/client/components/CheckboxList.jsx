@@ -2,8 +2,12 @@ import {useEffect, useState} from 'react';
 
 function CheckboxList({options, type, onCheckboxChange}) {
     const [selectedOption, setSelectedOption] = useState(null);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
 
+    //TODO: Make it reset when category changes(or filter)
     useEffect(() => {
+        console.log("rerender")
         setSelectedOption(null);
     }, []);
 
@@ -12,17 +16,31 @@ function CheckboxList({options, type, onCheckboxChange}) {
         setSelectedOption(newSelectedOption);
 
         if (onCheckboxChange) {
-            if(options[newSelectedOption] === undefined){
+            if (options[newSelectedOption] === undefined) {
                 onCheckboxChange('', type);
                 return;
             }
-            if(type === 'brand')
-            {
+            if (type === 'brand') {
                 onCheckboxChange(options[newSelectedOption].brandName, type);
                 return;
             }
-            if(type === 'priceRange'){
+            if (type === 'priceRange') {
+                if (options[newSelectedOption] === 'custom') {
+                    if (minPrice === '' || maxPrice === '') {
+                        return;
+                    }
+                    // switch min and max if min is greater than max
+                    if (parseInt(minPrice) > parseInt(maxPrice)) {
+                        const temp = minPrice;
+                        setMinPrice(maxPrice);
+                        setMaxPrice(temp);
+                    }
+                    onCheckboxChange(`${minPrice}-${maxPrice}`, type);
+
+                    return;
+                }
                 options[newSelectedOption] = options[newSelectedOption].replaceAll('$', '');
+                onCheckboxChange(options[newSelectedOption], type);
                 return;
             }
             onCheckboxChange(options[newSelectedOption], type);
@@ -42,6 +60,8 @@ function CheckboxList({options, type, onCheckboxChange}) {
                                     maxLength="4"
                                     className="size-7 w-20 border border-primary p-1.5 rounded-md mr-2"
                                     placeholder="Min"
+                                    value={minPrice}
+                                    onChange={(e) => setMinPrice(e.target.value)}
                                 />
                             )}
                             {type === 'priceRange' && item === 'custom' && (
@@ -50,6 +70,8 @@ function CheckboxList({options, type, onCheckboxChange}) {
                                     maxLength="4"
                                     className="size-7 w-20 border border-primary p-1.5 rounded-md"
                                     placeholder="Max"
+                                    value={maxPrice}
+                                    onChange={(e) => setMaxPrice(e.target.value)}
                                 />
                             )}
                         </span>

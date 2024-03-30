@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import CreateProductList from "../utils/ProductsCreate.js";
 import {Helmet} from "react-helmet";
 import {Link, NavLink, useParams} from "react-router-dom";
@@ -10,76 +10,75 @@ function ProductList() {
     const [products, setProducts] = useState([]);
     const [brands, setBrands] = useState([]);
     const [offset, setOffset] = useState(0);
-    const [filters, setFilters] = useState({ priceRange: '', skinType: '', brand: '', category: ''});
+    const [filters, setFilters] = useState({priceRange: '', skinType: '', brand: '', category: ''});
     const [productCount, setProductCount] = useState(0);
-    let { brand, category } = useParams();
-    
-    useEffect(() => {
-        if(category)
-        {
-            setFilters((prevFilters) => ({...prevFilters, [category]: category}));
-        }
-        
-        if(brand)
-        {
-            setFilters((prevFilters) => ({...prevFilters, [brand]: brand}));
-        }
-    },[brand, category]);
+    let {brand, category} = useParams();
+    const [currentCategory, setCurrentCategory] = useState(category);
+    const [currentBrand, setCurrentBrand] = useState(brand);
 
-
+// TODO: /category and /brand bring duplicate data so its being run twice, gotta fix dependencies
     useEffect(() => {
-        // Construct the API URL
+        if (filters.priceRange || filters.skinType || offset === 0 || category || brand) {
+            console.log('resetting products')
+            setProducts([]);
+            setOffset(0);
+        }
 
         const params = new URLSearchParams();
         params.append('limit', 15);
         params.append('offset', offset.toString());
-        params.append('category', filters.category);
-        params.append('brand', filters.brand );
-        params.append('priceRange', filters.priceRange);
-        params.append('skinType', filters.skinType);
+
+        if (filters.category && category) params.append('category', filters.category);
+        if (filters.brand) params.append('brand', filters.brand);
+        if (category && !filters.category) params.append('category', category);
+        if (brand && !filters.brand) params.append('brand', brand);
+        if (filters.priceRange) params.append('priceRange', filters.priceRange);
+        if (filters.skinType) params.append('skinType', filters.skinType);
 
         const apiUrl = `http://localhost:3002/products?${params.toString()}`;
-        console.log("API URL", apiUrl)
-        // Fetch products from the API
+        console.log(apiUrl)
         fetch(apiUrl)
-            .then((response) => response.json())
-            .then((data) => {
-                setProducts((prevProducts) => [...prevProducts, ...CreateProductList(data.data)]);
+            .then(response => response.json())
+            .then(data => {
+                setProducts((prevProducts) => {
+                    return prevProducts.concat(CreateProductList(data.data));
+                });
                 setProductCount(data.count);
             })
             .catch((error) => {
                 console.error('Error fetching products:', error);
             });
-    }, [offset, filters]);
-
-    useEffect(() => {
-        if(filters.priceRange || filters.skinType || offset === 0 || brand || category)
-        {
-            console.log("Filters changed")
-            setProducts([]);
-            setOffset(0);
-        }
     }, [offset, filters, category, brand]);
 
     useEffect(() => {
-            fetch('http://localhost:3002/brands')
-                .then(response => response.json())
-                .then(data => {
-                    setBrands(CreateBrands(data));
-                });
+        console.log("cate or brand changed")
+        if (category !== currentCategory) setCurrentCategory(category);
+        if (brand !== currentBrand) setCurrentBrand(brand);
+    }, [category, brand]);
+
+    useEffect(() => {
+        fetch('http://localhost:3002/brands')
+            .then(response => response.json())
+            .then(data => {
+                setBrands(CreateBrands(data));
+            });
     }, []);
 
     const handleLoadMore = () => {
         setOffset(offset + 15); // Increase offset
     };
 
-   function tester(value, filterType) {
-       // TODO: implement removing filters(like unclicking a checkbox)
-       console.log("CUTIE" + value, filterType)
+    function tester(value, filterType) {
+        console.log(filterType, value)
+        // TODO: implement removing filters(like unclicking a checkbox)
 
-        //setFilters((prevFilters) => ({...prevFilters, [filterType]: value}));
-        //setOffset(0); // Reset offset
+        setFilters((prevFilters) => ({...prevFilters, [filterType]: value}));
+        setOffset(0); // Reset offset
     }
+
+    useEffect(() => {
+        console.log(filters)
+    }, [filters])
 
     const pageTitle = category ? `${category}` : brand ? `${brand}` : 'All Products';
 
@@ -88,13 +87,11 @@ function ProductList() {
             <Helmet>
                 <title>{pageTitle} | Skingredients</title>
             </Helmet>
-            <Sidebar brands={brands} onFilterChange={tester} />
-            <ProductItems products={products} handleLoadMore={handleLoadMore} productCount={productCount} />
+            <Sidebar brands={brands} onFilterChange={tester} currentCategory={currentCategory}/>
+            <ProductItems products={products} handleLoadMore={handleLoadMore} productCount={productCount}/>
         </div>
     );
 }
-
-
 
 
 export default ProductList

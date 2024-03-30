@@ -54,8 +54,14 @@ app.get('/products', (req, res) => {
     }
 
     if (req.query.priceRange) {
-        const [minPrice, maxPrice] = req.query.priceRange.split('-');
-        filters.push(`pv.Price BETWEEN ${minPrice} AND ${maxPrice}`);
+        let [minPrice, maxPrice] = req.query.priceRange.split('-');
+        if (maxPrice === undefined) {
+            minPrice = minPrice.replace('+', '');
+            filters.push(`pv.Price >= ${minPrice}`);
+        }
+        else{
+            filters.push(`pv.Price BETWEEN ${minPrice} AND ${maxPrice}`);
+        }
     }
 
     if (req.query.brand) {
@@ -104,6 +110,28 @@ app.get('/products', (req, res) => {
             });
         }
     });
+});
+
+app.get('/products/count', (req, res) => {
+    // TODO: change this to be the preloaded product list
+    let {category, priceRange, brand} = req.query;
+
+    let products = getAllProducts(); // Function to get all products
+
+    if (category) {
+        products = products.filter(product => product.category === category);
+    }
+
+    if (priceRange) {
+        let [minPrice, maxPrice] = priceRange.split('-');
+        products = products.filter(product => product.price >= minPrice && product.price <= maxPrice);
+    }
+
+    if (brand) {
+        products = products.filter(product => product.brand === brand);
+    }
+
+    res.json({count: products.length});
 });
 
 app.get('/categories', (req, res) => {
