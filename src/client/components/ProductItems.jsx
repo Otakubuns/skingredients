@@ -5,7 +5,7 @@ function ProductItems({products, handleLoadMore, productCount}) {
     const [isMoreProducts, setIsMoreProducts] = useState(true);
 
     useEffect(() => {
-        if(products.length === productCount && productCount !== 0)
+        if(products.length === productCount && productCount !== 0 || productCount === 0)
         {
             setIsMoreProducts(false);
         }
@@ -22,7 +22,7 @@ function ProductItems({products, handleLoadMore, productCount}) {
                     <div className="card card-compact w-56 bg-base-100" key={index}>
                         <NavLink to={`/product/${product.productID}`}>
                             <figure>
-                                <img src={product.PhotoURL} alt="photo" />
+                                <img src={`${import.meta.env.BASE_URL}images/${product.PhotoURL}`} alt="photo" />
                             </figure>
                         </NavLink>
                         <div className="card-body">
@@ -37,7 +37,12 @@ function ProductItems({products, handleLoadMore, productCount}) {
                     </div>
                 ))}
                 <div className="w-60 m-auto px-5">
+                    {products.length === 0 && (
+                        <p className="text-gray-500 text-center">Sorry, no products found :(</p>
+                    )}
+                    {products.length > 0 && (
                     <p className="text-gray-500 text-center">1 - {products.length} of {productCount} Results</p>
+                    )}
                     {isMoreProducts && (
                         <button className="btn btn-primary btn-block" onClick={handleLoadMore}>Load More</button>
                     )}

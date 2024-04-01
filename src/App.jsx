@@ -8,6 +8,8 @@ import Brands from "./client/pages/Brands";
 import RoutineCreator from "./client/pages/RoutineCreator.jsx";
 import NotFound from "./client/pages/NotFound.jsx";
 import Faq from "./client/pages/Faq.jsx";
+import Routine from "./client/pages/Routines.jsx";
+import Routines from "./client/pages/Routines.jsx";
 
 function App() {
 
@@ -24,7 +26,8 @@ function App() {
                     <Route path="brands" element={<Brands/>}/>
                     <Route path="/category/:category" element={<ProductList/>}/>
                     <Route path="faq" element={<Faq/>}/>
-                    <Route path="routine" element={<RoutineCreator/>}/>
+                    <Route path="routine" element={<Routines/>}/>
+                    <Route path="routine/:id" element={<RoutineCreator/>}/>
                     <Route path="*" element={<NotFound/>}/>
                 </Route>
             </Routes>

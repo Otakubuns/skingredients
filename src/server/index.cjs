@@ -35,7 +35,6 @@ db.query('SELECT p.ProductName, p.ProductID, b.BrandName FROM Products p JOIN Br
     } else {
 
         results.forEach((row) => {
-            console.log(row)
             productList.push(row);
         });
         console.log(`Preloaded ${productList.length} products.`);
@@ -68,6 +67,7 @@ app.get('/products', (req, res) => {
         filters.push(`b.BrandName = '${req.query.brand}'`);
     }
 
+
     let sql = `SELECT p.ProductName, p.ProductID, b.BrandName, MIN(pv.Price) AS MinPrice, MAX(pv.Price) AS MaxPrice,
                 p.ProductPhoto
                 FROM Products p
@@ -78,6 +78,16 @@ app.get('/products', (req, res) => {
 
     if (filters.length > 0) {
         sql += ` WHERE ${filters.join(' AND ')}`;
+    }
+
+    // TODO: Either make skintype a seperate table or filter it properyl
+    if(req.query.skinType){
+        if(filters.length > 0){
+            sql += ` AND WHERE p.SkinType LIKE '${req.query.skinType}'`;
+        }
+        else{
+            sql += ` WHERE p.SkinType LIKE '${req.query.skinType}'`;
+        }
     }
 
     // Add LIMIT and OFFSET
@@ -185,7 +195,7 @@ app.get('/brand/:brand', (req, res) => {
 
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
-    const sql = `SELECT P.ProductID, P.ProductName, P.SkinType, P.IsLuxury, B.BrandName, PT.ProductTypeName, 
+    const sql = `SELECT P.ProductID, P.ProductName, P.ProductDescription, P.SkinType, P.IsLuxury, B.BrandName, PT.ProductTypeName, 
     GROUP_CONCAT(CONCAT(PV.Amount, ' - $', PV.Price) SEPARATOR '; ') AS Variants, P.ProductPhoto 
     FROM Products AS P
     JOIN Brands AS B ON P.BrandID = B.BrandID
@@ -202,6 +212,7 @@ app.get('/product/:id', (req, res) => {
                 let product = {
                     ProductID: result[0].ProductID,
                     ProductName: result[0].ProductName,
+                    ProductDescription: result[0].ProductDescription,
                     SkinType: result[0].SkinType,
                     IsLuxury: result[0].IsLuxury,
                     BrandName: result[0].BrandName,

@@ -29,11 +29,14 @@ function CheckboxList({options, type, onCheckboxChange}) {
                     if (minPrice === '' || maxPrice === '') {
                         return;
                     }
+
                     // switch min and max if min is greater than max
                     if (parseInt(minPrice) > parseInt(maxPrice)) {
-                        const temp = minPrice;
                         setMinPrice(maxPrice);
-                        setMaxPrice(temp);
+                        setMaxPrice(minPrice);
+
+                        onCheckboxChange(`${maxPrice}-${minPrice}`, type);
+                        return;
                     }
                     onCheckboxChange(`${minPrice}-${maxPrice}`, type);
 

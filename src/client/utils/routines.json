@@ -1,0 +1,19 @@
+{"recommendedRoutines": [
+    {
+      "name" : "Dry Skin Routine",
+        "description" : "This routine is perfect for those with dry skin",
+        "AM" : [
+            "Cleanser",
+            "Toner",
+            "Serum",
+            "Moisturizer"
+        ],
+        "PM" : [
+            "Cleanser",
+            "Toner",
+            "Serum",
+            "Moisturizer"
+        ]
+    }
+
+]}

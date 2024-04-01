@@ -1,7 +1,7 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import CreateProductList from "../utils/ProductsCreate.js";
 import {Helmet} from "react-helmet";
-import {Link, NavLink, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import ProductItems from "../components/ProductItems.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import CreateBrands from "../utils/BrandsCreate.js";
@@ -16,7 +16,8 @@ function ProductList() {
     const [currentCategory, setCurrentCategory] = useState(category);
     const [currentBrand, setCurrentBrand] = useState(brand);
 
-// TODO: /category and /brand bring duplicate data so its being run twice, gotta fix dependencies
+
+    //IDEA : Maybe reset triggers the grab teism which can be its own function and then dependencies wouldnt be bad(and when someone clicks load more)
     useEffect(() => {
         if (filters.priceRange || filters.skinType || offset === 0 || category || brand) {
             console.log('resetting products')
@@ -25,7 +26,7 @@ function ProductList() {
         }
 
         const params = new URLSearchParams();
-        params.append('limit', 15);
+        params.append('limit', 30);
         params.append('offset', offset.toString());
 
         if (filters.category && category) params.append('category', filters.category);
@@ -40,6 +41,7 @@ function ProductList() {
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 setProducts((prevProducts) => {
                     return prevProducts.concat(CreateProductList(data.data));
                 });
@@ -65,7 +67,7 @@ function ProductList() {
     }, []);
 
     const handleLoadMore = () => {
-        setOffset(offset + 15); // Increase offset
+        setOffset(offset + 30); // Increase offset
     };
 
     function tester(value, filterType) {

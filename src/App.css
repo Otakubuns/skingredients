@@ -37,3 +37,12 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield;
 }
+
+.website-links > li > a:hover {
+    color: oklch(var(--n));
+    text-decoration: underline;
+}
+
+.website-links > li > a {
+    color: oklch(var(--n));
+}

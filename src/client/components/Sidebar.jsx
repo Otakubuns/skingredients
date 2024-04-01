@@ -1,6 +1,7 @@
 import CheckboxList from "./CheckboxList.jsx";
 import {useEffect, useState} from "react";
 import {Link, NavLink} from "react-router-dom";
+import BreadCrumbs from "./BreadCrumbs.jsx";
 
 function Sidebar({brands = [], onFilterChange, currentCategory}) {
     const [categories, setCategories] = useState([]);
@@ -18,10 +19,16 @@ function Sidebar({brands = [], onFilterChange, currentCategory}) {
         }
     }, [currentCategory]);
 
+    // TODO: ADD BREADCRUMBS
     return (
         <div className="sidebar p-4 rounded-box">
             {currentCategory && (
-                <h1 className="pt-10 font-semibold text-xl">{currentCategory}</h1>
+                <>
+                    <div className="breadcrumbs -mb-11">
+                        <BreadCrumbs productType={currentCategory}/>
+                    </div>
+                    <h1 className="pt-10 font-semibold text-xl">{currentCategory}</h1>
+                </>
             )}
             {categories.length > 0 && (
                 <>

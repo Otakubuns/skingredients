@@ -2,17 +2,9 @@ import {Link} from "react-router-dom";
 
 function MainFooter() {
   return (
-    <footer className="footer p-4 bg-primary text-neutral-content">
-        <nav>
-            <aside className="mb-2 md:mb-0">
-                <p className="footer-title">Copyright © {new Date().getFullYear()} - All rights reserved</p>
-            </aside>
-        </nav>
-        <nav>
-            <h6 className="footer-title">Company</h6>
-        </nav>
-        <nav>
-            <h6 className="footer-title"><Link to="/faq">FAQ</Link></h6>
+    <footer className="footer px-4 py-2.5 mt-10 bg-primary text-neutral-content">
+        <nav className="mx-auto">
+            <p className="">Copyright © {new Date().getFullYear()} | <Link to="/faq" className="hover: underline">FAQ/About</Link></p>
         </nav>
     </footer>
   );

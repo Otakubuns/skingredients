@@ -2,6 +2,7 @@ import {Fragment, useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import {Helmet} from "react-helmet";
 import BreadCrumbs from "../components/BreadCrumbs.jsx";
+//import activeIngredients from "../utils/activeingredients.json";
 
 function Product() {
     let [product, setProduct] = useState({});
@@ -36,7 +37,7 @@ function Product() {
                     <Helmet>
                         <title>{product.ProductName + " | Skingredients"}</title>
                     </Helmet>
-                    <img src={product.ProductPhoto} className="w-80 rounded-lg shadow-lg mb-4" alt="photo"/>
+                    <img src={`${import.meta.env.BASE_URL}images/${product.ProductPhoto}`} className="w-80 rounded-lg shadow-lg" alt="photo"/>
 
                     <div className="bg-white p-6 rounded-lg shadow-md relative">
                         <Link to={"/brand/" + product.BrandName}
@@ -44,6 +45,15 @@ function Product() {
                         <h1 className="text-2xl font-semibold mb-2">{product.ProductName}</h1>
                         <SkinTypeBadge SkinType={product.SkinType}/>
                         <IngredientBadge ingredients={ingredients}/>
+                        <div className="collapse collapse-arrow">
+                            <input type="checkbox"/>
+                            <div className="collapse-title text-xl font-medium">
+                                Description
+                            </div>
+                            <div className="collapse-content">
+                                <p>{product.ProductDescription}</p>
+                            </div>
+                        </div>
                         <div className="collapse collapse-arrow">
                             <input type="checkbox"/>
                             <div className="collapse-title text-xl font-medium">
@@ -93,39 +103,27 @@ function SkinTypeBadge({SkinType})
 }
 
 function IngredientBadge({ingredients}) {
-    const importantIngredients = {
-        "Retinol": "Retinol",
-        "Hyaluronic Acid": "Hyaluronic Acid",
-        "Vitamin C": ["Vitamin C", "Ascorbic Acid"],
-        "Salicylic Acid": "Salicylic Acid",
-        "Niacinamide": "Niacinamide",
-        "Ceramides": "Ceramides",
-        "Benzoyl Peroxide": "Benzoyl Peroxide",
-        "Azelaic Acid": "Azelaic Acid",
-        "Glycolic acid": "Glycolic acid",
-        "Sulfur": "Sulfur",
-        "Lactic acid": "Lactic acid",
-        "Vitamin E": "Vitamin E",
-    };
 
-    const filteredIngredients = ingredients.filter((ingredient) => {
-        for (const [key, value] of Object.entries(importantIngredients)) {
-            if (ingredient === key || (Array.isArray(value) && value.includes(ingredient))) {
-                return true;
-            }
-        }
-        return false;
-    });
+    //console.log(activeIngredients);
 
-    return (
-        <>
-            {filteredIngredients.map((ingredient, index) => (
-                <div key={index} className="badge badge-secondary">
-                    {ingredient}
-                </div>
-            ))}
-        </>
-    );
+    // const filteredIngredients = ingredients.filter((ingredient) => {
+    //     for (const [key, value] of Object.entries(importantIngredients)) {
+    //         if (ingredient === key || (Array.isArray(value) && value.includes(ingredient))) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // });
+    //
+    // return (
+    //     <>
+    //         {filteredIngredients.map((ingredient, index) => (
+    //             <div key={index} className="badge badge-secondary">
+    //                 {ingredient}
+    //             </div>
+    //         ))}
+    //     </>
+    // );
 }
 
 
