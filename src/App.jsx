@@ -10,6 +10,7 @@ import NotFound from "./client/pages/NotFound.jsx";
 import Faq from "./client/pages/Faq.jsx";
 import Routine from "./client/pages/Routines.jsx";
 import Routines from "./client/pages/Routines.jsx";
+import Login from "./client/pages/Login.jsx";
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
                     <Route path="faq" element={<Faq/>}/>
                     <Route path="routine" element={<Routines/>}/>
                     <Route path="routine/:id" element={<RoutineCreator/>}/>
+                    <Route path="login" element={<Login/>}/>
                     <Route path="*" element={<NotFound/>}/>
                 </Route>
             </Routes>

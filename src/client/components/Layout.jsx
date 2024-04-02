@@ -6,7 +6,7 @@ function Layout() {
     return (
         <div className="flex flex-col h-screen justify-between">
             <MainNav/>
-            <div className="mb-auto font-sans max-w-screen-xl mx-auto">
+            <div className="max-w-screen-xl mx-auto w-full">
                 <Outlet/>
             </div>
             <MainFooter/>

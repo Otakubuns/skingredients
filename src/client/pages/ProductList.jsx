@@ -10,53 +10,75 @@ function ProductList() {
     const [products, setProducts] = useState([]);
     const [brands, setBrands] = useState([]);
     const [offset, setOffset] = useState(0);
-    const [filters, setFilters] = useState({priceRange: '', skinType: '', brand: '', category: ''});
+    const [filters, setFilters] = useState({priceRange: '', skinType: '', brand: '', category: '', sort: ''});
     const [productCount, setProductCount] = useState(0);
     let {brand, category} = useParams();
     const [currentCategory, setCurrentCategory] = useState(category);
     const [currentBrand, setCurrentBrand] = useState(brand);
+    const [isLoading, setIsLoading] = useState(true);
 
-
-    //IDEA : Maybe reset triggers the grab teism which can be its own function and then dependencies wouldnt be bad(and when someone clicks load more)
-    useEffect(() => {
-        if (filters.priceRange || filters.skinType || offset === 0 || category || brand) {
-            console.log('resetting products')
-            setProducts([]);
-            setOffset(0);
-        }
-
+    const fetchProducts = async () => {
+        console.log("Bonjour")
         const params = new URLSearchParams();
         params.append('limit', 30);
         params.append('offset', offset.toString());
 
-        if (filters.category && category) params.append('category', filters.category);
-        if (filters.brand) params.append('brand', filters.brand);
-        if (category && !filters.category) params.append('category', category);
-        if (brand && !filters.brand) params.append('brand', brand);
-        if (filters.priceRange) params.append('priceRange', filters.priceRange);
-        if (filters.skinType) params.append('skinType', filters.skinType);
+        console.log(filters)
+        Object.keys(filters).forEach(key => {
+            if (filters[key]) {
+                params.append(key, filters[key]);
+            }
+        });
 
         const apiUrl = `http://localhost:3002/products?${params.toString()}`;
-        console.log(apiUrl)
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                setProducts((prevProducts) => {
-                    return prevProducts.concat(CreateProductList(data.data));
-                });
-                setProductCount(data.count);
-            })
-            .catch((error) => {
-                console.error('Error fetching products:', error);
-            });
-    }, [offset, filters, category, brand]);
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if(data.data.length === 0) return;
+
+        const newProducts = CreateProductList(data.data);
+        const combinedProducts = [...products, ...newProducts];
+
+        const uniqueProducts = combinedProducts.filter((product, index, self) =>
+            index === self.findIndex((p) => p.productID === product.productID)
+        );
+
+        setProducts(uniqueProducts);
+        setProductCount(data.count);
+    };
 
     useEffect(() => {
-        console.log("cate or brand changed")
-        if (category !== currentCategory) setCurrentCategory(category);
-        if (brand !== currentBrand) setCurrentBrand(brand);
-    }, [category, brand]);
+        if (category !== currentCategory) {
+            console.log("Resetting")
+            setCurrentCategory(category);
+            setFilters(prevFilters => ({...prevFilters, category: category}));
+            setOffset(0);
+            setProducts([]);
+        }
+        if (brand !== currentBrand) {
+            console.log("Resetting")
+            setCurrentBrand(brand);
+            setFilters(prevFilters => ({...prevFilters, brand: brand}));
+            setOffset(0);
+            setProducts([]);
+        }
+    }, [category, brand, filters]);
+
+    useEffect(() => {
+        if (!isLoading) { // Only fetch products if not loading
+            fetchProducts();
+        }
+    }, [filters, offset, isLoading]);
+
+    useEffect(() => {
+        if (category) {
+            setFilters(prevFilters => ({...prevFilters, category: category}));
+        }
+        if (brand) {
+            setFilters(prevFilters => ({...prevFilters, brand: brand}));
+        }
+        setIsLoading(false); // Set loading to false after initial filters have been set
+    }, []);
 
     useEffect(() => {
         fetch('http://localhost:3002/brands')
@@ -70,30 +92,32 @@ function ProductList() {
         setOffset(offset + 30); // Increase offset
     };
 
-    function tester(value, filterType) {
-        console.log(filterType, value)
-        // TODO: implement removing filters(like unclicking a checkbox)
-
-        setFilters((prevFilters) => ({...prevFilters, [filterType]: value}));
-        setOffset(0); // Reset offset
+    const handleSortChange = (event) => {
+        if (event.target.value === 'Sort by:') return;
+        let selectedValue = event.target.value;
+        handleFilterChange(selectedValue, 'sort')
     }
 
-    useEffect(() => {
-        console.log(filters)
-    }, [filters])
+    function handleFilterChange(value, filterType) {
+        setFilters(prevFilters => {
+            return {...prevFilters, [filterType]: value};
+        });
+        setOffset(0);
+        setProducts([]);
+    }
 
     const pageTitle = category ? `${category}` : brand ? `${brand}` : 'All Products';
 
     return (
-        <div className="flex">
+        <div className="flex w-full">
             <Helmet>
                 <title>{pageTitle} | Skingredients</title>
             </Helmet>
-            <Sidebar brands={brands} onFilterChange={tester} currentCategory={currentCategory}/>
-            <ProductItems products={products} handleLoadMore={handleLoadMore} productCount={productCount}/>
+            <Sidebar brands={brands} onFilterChange={handleFilterChange} currentCategory={currentCategory}/>
+            <ProductItems products={products} handleLoadMore={handleLoadMore} productCount={productCount}
+                          handleSortChange={handleSortChange}/>
         </div>
     );
 }
-
 
 export default ProductList

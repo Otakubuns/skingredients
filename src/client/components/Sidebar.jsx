@@ -5,8 +5,9 @@ import BreadCrumbs from "./BreadCrumbs.jsx";
 
 function Sidebar({brands = [], onFilterChange, currentCategory}) {
     const [categories, setCategories] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredBrands, setFilteredBrands] = useState([]);
 
-    console.log('currentCategory', currentCategory);
     useEffect(() => {
         if (currentCategory === undefined) {
             fetch('http://localhost:3002/categories')
@@ -19,7 +20,16 @@ function Sidebar({brands = [], onFilterChange, currentCategory}) {
         }
     }, [currentCategory]);
 
-    // TODO: ADD BREADCRUMBS
+    useEffect(() => {
+        if(searchTerm.length >= 3)
+        {
+            setFilteredBrands(brands.filter(brand => brand.brandName.toLowerCase().includes(searchTerm.toLowerCase())));
+        } else {
+            setFilteredBrands(brands);
+        }
+    }, [searchTerm, brands]);
+
+
     return (
         <div className="sidebar p-4 rounded-box">
             {currentCategory && (
@@ -58,7 +68,9 @@ function Sidebar({brands = [], onFilterChange, currentCategory}) {
                         <li className="pb-3 pt-3 border-b">
                             <details>
                                 <summary className="font-bold">Brand</summary>
-                                <CheckboxList options={brands} type="brand" onCheckboxChange={onFilterChange}/>
+                                <input type="text" id="brand" name="brand" className="mt-2 input input-sm input-bordered"
+                                onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm}/>
+                                <CheckboxList options={filteredBrands} type="brand" onCheckboxChange={onFilterChange}/>
                             </details>
                         </li>
                     )
@@ -66,7 +78,14 @@ function Sidebar({brands = [], onFilterChange, currentCategory}) {
                 <li className="pb-3 pt-3 border-b">
                     <details>
                         <summary className="font-bold">Skin Type</summary>
-                        <CheckboxList options={['Oily', 'Normal', 'Dry', 'Combination']} type="skinType"
+                        <CheckboxList options={['Oily', 'Dry', 'Combination', 'Sensitive']} type="skinType"
+                                      onCheckboxChange={onFilterChange}/>
+                    </details>
+                </li>
+                <li className="pb-3 pt-3 border-b">
+                    <details>
+                        <summary className="font-bold">Concern</summary>
+                        <CheckboxList options={['Acne', 'Anti-Aging', 'Brightening', 'Hydrating']} type="ingredients"
                                       onCheckboxChange={onFilterChange}/>
                     </details>
                 </li>

@@ -34,7 +34,7 @@ function Brands() {
     }, {});
 
     return (
-        <div className="max-w-screen-xl mx-auto p-4">
+        <div className="max-w-screen-xl align-middle p-4">
             <h1 className="text-3xl font-semibold mb-4">Brands</h1>
             <div className="flex space-x-2 mb-12">
                 {Array.from({ length: 26 }, (_, index) => (

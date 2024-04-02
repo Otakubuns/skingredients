@@ -12,7 +12,11 @@ function Routines() {
         setRoutines(routines);
     }
 
-    function EditRoutine(routine){
+    function EditRoutine(routine) {
+    }
+
+    function CreateRoutine() {
+
     }
 
     return (
@@ -27,7 +31,8 @@ function Routines() {
                 <div className="font-light text-gray-500 text-xs">For a basic routine or new to skincare</div>
             </button>
             <button className="btn btn-lg  rounded-2xl">🔍Search</button>
-            <Link to={"/routine/" + crypto.randomUUID().slice(0, 6)} className="btn btn-lg  rounded-2xl">📝Create New Routine</Link>
+            <Link to={"/routine/" + crypto.randomUUID().slice(0, 6)} className="btn btn-lg  rounded-2xl">📝Create New
+                Routine</Link>
 
             <ul>
                 {routines.map((routine, index) => (

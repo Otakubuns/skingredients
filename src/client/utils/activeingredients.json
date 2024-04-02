@@ -1,93 +1,126 @@
-{"activeIngredients": [
+{
+  "activeIngredients": [
     {
       "name": "Vitamin C",
-      "associated_ingredient": "Ascorbic Acid",
+      "associated_ingredients": [
+        "Ascorbic Acid"
+      ],
       "benefits": "Antioxidant, brightening, collagen synthesis"
     },
     {
       "name": "Retinol",
-      "associated_ingredient": "Vitamin A",
+      "associated_ingredients": [
+        "Vitamin A"
+      ],
       "benefits": "Anti-aging, cell turnover, acne treatment"
     },
     {
       "name": "Hyaluronic Acid",
-      "associated_ingredient": "Sodium Hyaluronate",
-      "benefits": "Hydration, plumping, skin barrier support"
+      "associated_ingredients": [
+        "Sodium Hyaluronate",
+        "Hyaluronan",
+        "Hyaluronic Acid"
+      ],
+      "benefits": "Hydrating, plumping, skin barrier support"
     },
     {
       "name": "Niacinamide",
-      "associated_ingredient": "Vitamin B3",
-      "benefits": "Oil control, pore refinement, anti-inflammatory"
+      "associated_ingredients": [
+        "Vitamin B3",
+        "Nicotinamide"
+      ],
+      "benefits": "Oil controlling, pore refining, anti-inflammatory"
     },
     {
       "name": "Sulfur",
-        "associated_ingredient": "Sulphur",
-        "benefits": "Acne treatment, oil control, anti-inflammatory"
+      "associated_ingredients": [
+        "Sulphur"
+      ],
+      "benefits": "Acne treating, oil controlling, anti-inflammatory"
     },
     {
       "name": "Salicylic Acid",
-      "associated_ingredient": "Beta Hydroxy Acid (BHA)",
-      "benefits": "Exfoliation, acne treatment, unclogs pores"
+      "associated_ingredients": [
+        "Beta Hydroxy Acid (BHA)"
+      ],
+      "benefits": "Exfoliating, acne treating, unclogging pores"
     },
     {
       "name": "Glycolic Acid",
-      "associated_ingredient": "Alpha Hydroxy Acid (AHA)",
-      "benefits": "Exfoliation, skin texture improvement, brightening"
+      "associated_ingredients": [
+        "Alpha Hydroxy Acid (AHA)"
+      ],
+      "benefits": "Exfoliating, skin texture improving, brightening"
     },
     {
       "name": "Lactic Acid",
-      "associated_ingredient": "Alpha Hydroxy Acid (AHA)",
-      "benefits": "Exfoliation, hydration"
+      "associated_ingredients": [
+        "Alpha Hydroxy Acid (AHA)"
+      ],
+      "benefits": "Exfoliating, hydrating"
     },
     {
       "name": "Vitamin E",
-      "associated_ingredient": "Tocopherol",
-      "benefits": "Antioxidant, skin barrier support, hydration"
+      "associated_ingredients": [
+        "Tocopherol"
+      ],
+      "benefits": "Antioxidant, skin barrier supporting, hydrating"
     },
     {
       "name": "Peptides",
-      "associated_ingredient": "Amino Acids",
-      "benefits": "Anti-aging, collagen synthesis, skin firming"
+      "associated_ingredients": [
+        "Amino Acids"
+      ],
+      "benefits": "Anti-aging, collagen synthesizing, skin firming"
     },
     {
       "name": "Ceramides",
-      "associated_ingredient": "Lipids",
-      "benefits": "Skin barrier support, hydration, anti-inflammatory"
+      "associated_ingredients": [
+        "Lipids"
+      ],
+      "benefits": "Skin barrier supporting, hydrating, anti-inflammatory"
     },
     {
       "name": "Azelaic Acid",
-      "associated_ingredient": "Dicarboxylic Acid",
-      "benefits": "Brightening, acne treatment, anti-inflammatory"
+      "associated_ingredients": [
+        "Dicarboxylic Acid"
+      ],
+      "benefits": "Brightening, acne treating, anti-inflammatory"
     },
     {
       "name": "Glycerin",
-      "associated_ingredient": "Glycerol",
-      "benefits": "Hydration, skin barrier support, anti-inflammatory"
-    },
-    {
-      "name": "Green Tea Extract",
-      "associated_ingredient": "Camellia Sinensis Leaf Extract",
-      "benefits": "Antioxidant, anti-inflammatory, UV protection"
+      "associated_ingredients": [
+        "Glycerol", "Glycerine"
+      ],
+      "benefits": "Hydrating, skin barrier supporting, anti-inflammatory"
     },
     {
       "name": "Caffeine",
-      "associated_ingredient": "Methylxanthine",
+      "associated_ingredients": [
+        "Methylxanthine"
+      ],
       "benefits": "Anti-inflammatory, depuffing, antioxidant"
     },
     {
-      "name": "Vitamin K",
-      "associated_ingredient": "Phytonadione",
-      "benefits": "Dark circle reduction, bruise healing"
-    },
-    {
       "name": "Urea",
-      "associated_ingredient": "Carbamide",
-      "benefits": "Hydration, skin barrier support, exfoliation"
+      "associated_ingredients": [
+        "Carbamide"
+      ],
+      "benefits": "Hydrating, skin barrier supporting, exfoliating"
     },
     {
       "name": "Squalane",
-      "associated_ingredient": "Squalene",
-      "benefits": "Hydration, skin barrier support, anti-inflammatory"
+      "associated_ingredients": [
+        "Squalane"
+      ],
+      "benefits": "Hydrating, skin barrier supporting, anti-inflammatory"
+    },
+    {
+      "name": "Benzoyl Peroxide",
+      "associated_ingredients": [
+        "BPO"
+      ],
+      "benefits": "Acne treating, antibacterial, exfoliating"
     }
   ]
 }

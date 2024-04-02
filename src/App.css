@@ -46,3 +46,18 @@ input[type=number] {
 .website-links > li > a {
     color: oklch(var(--n));
 }
+
+.no-stretch{
+    object-fit: contain;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.suggestions-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.suggestions-list {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

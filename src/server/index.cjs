@@ -29,7 +29,7 @@ db.connect((err) => {
 const productList = [];
 
 // Preload product names
-db.query('SELECT p.ProductName, p.ProductID, b.BrandName FROM Products p JOIN Brands b ON p.BrandID = b.BrandID', (err, results) => {
+db.query('SELECT p.ProductName, p.ProductID, p.ProductPhoto, b.BrandName FROM Products p JOIN Brands b ON p.BrandID = b.BrandID', (err, results) => {
     if (err) {
         console.error('Error fetching product names:', err);
     } else {
@@ -41,6 +41,34 @@ db.query('SELECT p.ProductName, p.ProductID, b.BrandName FROM Products p JOIN Br
     }
 });
 
+
+function generateSql(filters, includeLimitOffset = false, limit = 15, offset = 0, sort) {
+    let sql = `SELECT p.ProductName, p.ProductID, b.BrandName, MIN(pv.Price) AS MinPrice, MAX(pv.Price) AS MaxPrice,
+            p.ProductPhoto, GROUP_CONCAT(i.IngredientName) as Ingredients
+            FROM Products p
+            LEFT JOIN ProductVariants pv ON pv.ProductID = p.ProductID
+            JOIN ProductTypes pt ON p.ProductTypeID = pt.ProductTypeID
+            JOIN Brands b ON p.BrandID = b.BrandID
+            LEFT JOIN IngredientsLinks il ON p.ProductID = il.ProductID
+            LEFT JOIN Ingredients i ON il.IngredientID = i.IngredientID`;
+
+    if (filters.length > 0) {
+        sql += ` WHERE ${filters.join(' AND ')}`;
+    }
+
+    sql += ` GROUP BY p.ProductID, p.ProductName, b.BrandName, p.ProductPhoto`;
+
+    if (sort) {
+        sql += ` ORDER BY ${sort}`;
+    }
+
+    if (includeLimitOffset) {
+        sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+
+
+    return sql;
+}
 
 app.get('/products', (req, res) => {
     const offset = parseInt(req.query.offset) || 0;
@@ -57,8 +85,7 @@ app.get('/products', (req, res) => {
         if (maxPrice === undefined) {
             minPrice = minPrice.replace('+', '');
             filters.push(`pv.Price >= ${minPrice}`);
-        }
-        else{
+        } else {
             filters.push(`pv.Price BETWEEN ${minPrice} AND ${maxPrice}`);
         }
     }
@@ -68,54 +95,42 @@ app.get('/products', (req, res) => {
     }
 
 
-    let sql = `SELECT p.ProductName, p.ProductID, b.BrandName, MIN(pv.Price) AS MinPrice, MAX(pv.Price) AS MaxPrice,
-                p.ProductPhoto
-                FROM Products p
-                LEFT JOIN ProductVariants pv ON pv.ProductID = p.ProductID
-                JOIN ProductTypes pt ON p.ProductTypeID = pt.ProductTypeID
-                JOIN Brands b ON p.BrandID = b.BrandID`;
-
-
-    if (filters.length > 0) {
-        sql += ` WHERE ${filters.join(' AND ')}`;
+    if (req.query.skinType) {
+        filters.push(`p.SkinType LIKE '%${req.query.skinType}%'`);
     }
 
-    // TODO: Either make skintype a seperate table or filter it properyl
-    if(req.query.skinType){
-        if(filters.length > 0){
-            sql += ` AND WHERE p.SkinType LIKE '${req.query.skinType}'`;
-        }
-        else{
-            sql += ` WHERE p.SkinType LIKE '${req.query.skinType}'`;
+    if (req.query.ingredients) {
+        let ingredients = req.query.ingredients.split(',');
+        filters.push(`i.IngredientName IN (${ingredients.map(ingredient => `'${ingredient}'`).join(',')})`);
+    }
+
+    let sort = req.query.sort;
+    if (req.query.sort) {
+        if (sort === 'Price (Low - High)') {
+            sort = 'MinPrice ASC';
+        } else if (sort === 'Price (High - Low)') {
+            sort = 'MinPrice DESC';
+        } else if (sort === 'Alphabetical (A - Z)') {
+            sort = 'p.ProductName ASC';
+        } else if (sort === 'Alphabetical (Z - A)') {
+            sort = 'p.ProductName DESC';
         }
     }
 
-    // Add LIMIT and OFFSET
-    sql += ` GROUP BY p.ProductID
-             LIMIT ${limit} OFFSET ${offset};`;
-
-    console.log(sql);
+    const sql = generateSql(filters, true, limit, offset, sort);
+    console.log(sql)
 
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
         } else {
-            let countSql = `SELECT COUNT(DISTINCT p.ProductID) AS ProductCount
-                            FROM Products p
-                            LEFT JOIN ProductVariants pv ON pv.ProductID = p.ProductID
-                            JOIN ProductTypes pt ON p.ProductTypeID = pt.ProductTypeID
-                            JOIN Brands b ON p.BrandID = b.BrandID`;
-
-            if (filters.length > 0) {
-                countSql += ` WHERE ${filters.join(' AND ')}`;
-            }
+            const countSql = generateSql(filters);
 
             db.query(countSql, (err, countResult) => {
                 if (err) {
                     console.log(err);
                 } else {
-                    const totalCount = countResult[0].ProductCount;
-                    res.send({count: totalCount, data: result});
+                    res.send({count: countResult.length, data: result});
                 }
             });
         }
@@ -195,7 +210,7 @@ app.get('/brand/:brand', (req, res) => {
 
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
-    const sql = `SELECT P.ProductID, P.ProductName, P.ProductDescription, P.SkinType, P.IsLuxury, B.BrandName, PT.ProductTypeName, 
+    const productSql = `SELECT P.ProductID, P.ProductName, P.ProductDescription, P.SkinType, P.IsLuxury, B.BrandName, PT.ProductTypeName, 
     GROUP_CONCAT(CONCAT(PV.Amount, ' - $', PV.Price) SEPARATOR '; ') AS Variants, P.ProductPhoto 
     FROM Products AS P
     JOIN Brands AS B ON P.BrandID = B.BrandID
@@ -203,51 +218,47 @@ app.get('/product/:id', (req, res) => {
     LEFT JOIN ProductVariants AS PV ON P.ProductID = PV.ProductID
     WHERE P.ProductID = ? 
     GROUP BY P.ProductID`;
-    db.query(sql, [id], (err, result) => {
+
+    const ingredientsSql = `SELECT I.IngredientName
+    FROM Ingredients I
+    JOIN IngredientsLinks IL ON I.IngredientID = IL.IngredientID
+    WHERE IL.ProductID = ?`;
+
+    db.query(productSql, [id], (err, productResult) => {
         if (err) {
             console.log(err);
         } else {
-            if (result.length > 0) {
-                // Create new product object
-                let product = {
-                    ProductID: result[0].ProductID,
-                    ProductName: result[0].ProductName,
-                    ProductDescription: result[0].ProductDescription,
-                    SkinType: result[0].SkinType,
-                    IsLuxury: result[0].IsLuxury,
-                    BrandName: result[0].BrandName,
-                    ProductTypeName: result[0].ProductTypeName,
-                    ProductPhoto: result[0].ProductPhoto,
-                    Variants: []
-                };
+            db.query(ingredientsSql, [id], (err, ingredientsResult) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    if (productResult.length > 0) {
+                        // Create new product object
+                        let product = {
+                            ProductID: productResult[0].ProductID,
+                            ProductName: productResult[0].ProductName,
+                            ProductDescription: productResult[0].ProductDescription,
+                            SkinType: productResult[0].SkinType,
+                            IsLuxury: productResult[0].IsLuxury,
+                            BrandName: productResult[0].BrandName,
+                            ProductTypeName: productResult[0].ProductTypeName,
+                            ProductPhoto: productResult[0].ProductPhoto,
+                            Variants: [],
+                            Ingredients: ingredientsResult.map((ingredient) => {
+                                return [ingredient.IngredientName];
+                            })
+                        };
 
-                // Split the variants string into an array of variant objects
-                product.Variants = result[0].Variants.split('; ').map(variant => {
-                    let [amount, price] = variant.split(' - $');
-                    return {Amount: amount, Price: price};
-                });
+                        // Split the variants string into an array of variant objects
+                        product.Variants = productResult[0].Variants.split('; ').map(variant => {
+                            let [amount, price] = variant.split(' - $');
+                            return {Amount: amount, Price: price};
+                        });
 
-                res.send([product]);
-            }
-        }
-    });
-
-});
-
-app.get('/product/:id/ingredients', (req, res) => {
-    const id = req.params.id;
-    const sql = `SELECT I.IngredientName
-                FROM Ingredients I
-                JOIN IngredientsLinks IL ON I.IngredientID = IL.IngredientID
-                WHERE IL.ProductID = ${id};`;
-    db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            let ingredients = result.map((ingredient) => {
-                return [ingredient.IngredientName];
+                        res.send([product]);
+                    }
+                }
             });
-            res.send(ingredients);
         }
     });
 });

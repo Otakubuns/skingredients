@@ -2,17 +2,40 @@
     {
       "name" : "Dry Skin Routine",
         "description" : "This routine is perfect for those with dry skin",
-        "AM" : [
-            "Cleanser",
-            "Toner",
-            "Serum",
-            "Moisturizer"
-        ],
-        "PM" : [
-            "Cleanser",
-            "Toner",
-            "Serum",
-            "Moisturizer"
+        "steps" : [
+            {
+                "name" : "Cleanser",
+                "description" : "Use a gentle cleanser to remove dirt and oil from your skin",
+                "products" : [
+                    {
+                        "name" : "Cleanser",
+                        "brand" : "Cetaphil",
+                        "price" : "$10"
+                    }
+                ]
+            },
+            {
+                "name" : "Exfoliator",
+                "description" : "Use a gentle exfoliator to remove dead skin cells",
+                "products" : [
+                    {
+                        "name" : "Exfoliator",
+                        "brand" : "Neutrogena",
+                        "price" : "$15"
+                    }
+                ]
+            },
+            {
+                "name" : "Moisturize",
+                "description" : "Use a rich moisturizer to hydrate your skin",
+                "products" : [
+                    {
+                        "name" : "Moisturizer",
+                        "brand" : "CeraVe",
+                        "price" : "$20"
+                    }
+                ]
+            }
         ]
     }
 

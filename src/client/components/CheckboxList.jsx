@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import activeIngredients from "../utils/activeingredients.json";
 
 function CheckboxList({options, type, onCheckboxChange}) {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -7,7 +8,6 @@ function CheckboxList({options, type, onCheckboxChange}) {
 
     //TODO: Make it reset when category changes(or filter)
     useEffect(() => {
-        console.log("rerender")
         setSelectedOption(null);
     }, []);
 
@@ -44,6 +44,26 @@ function CheckboxList({options, type, onCheckboxChange}) {
                 }
                 options[newSelectedOption] = options[newSelectedOption].replaceAll('$', '');
                 onCheckboxChange(options[newSelectedOption], type);
+                return;
+            }
+            if(type === 'ingredients')
+            {
+                let finalActiveIngredients = [];
+                activeIngredients.activeIngredients.forEach(ingredient => {
+                    if(ingredient.benefits.toLowerCase().includes(options[newSelectedOption].toString().toLowerCase()))
+                    {
+                        // grab all the associated_ingredients(remonve duplicates) and add the ingredient name
+                        finalActiveIngredients.push(ingredient.name);
+                        ingredient.associated_ingredients.forEach(associatedIngredient => {
+                            if(!finalActiveIngredients.includes(associatedIngredient))
+                            {
+                                finalActiveIngredients.push(associatedIngredient);
+                            }
+                        });
+                    }
+                });
+
+                onCheckboxChange(finalActiveIngredients, type);
                 return;
             }
             onCheckboxChange(options[newSelectedOption], type);

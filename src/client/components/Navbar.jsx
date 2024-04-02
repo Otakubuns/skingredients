@@ -18,6 +18,7 @@ function MainNav() {
                 <div className="navbar-center hidden lg:flex">
                 </div>
                 <div className="navbar-end">
+                    <Link to="/login" className="btn btn-ghost">Login</Link>
                 </div>
             </div>
             <div className="navbar h-16 font-sans bg-primary">
