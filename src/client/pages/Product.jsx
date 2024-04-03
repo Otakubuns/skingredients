@@ -1,13 +1,19 @@
 import {Fragment, useEffect, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {Helmet} from "react-helmet";
 import BreadCrumbs from "../components/BreadCrumbs.jsx";
-import activeIngredients from "../utils/activeingredients.json";
+import {generateIdAndCreateRoutine} from "../utils/RoutineHelper.js";
+import SkinTypeBadge from "../components/SkinTypeBadge.jsx";
+import IngredientBadge from "../components/IngredientBadge.jsx";
 
 function Product() {
     let [product, setProduct] = useState({});
     let [ingredients, setIngredients] = useState([{}]);
+    let [selectedPrice, setSelectedPrice] = useState(null);
+    let [selectedVariant, setSelectedVariant] = useState(null);
+    const [timePeriod, setTimePeriod] = useState('');
     let {id} = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch('http://localhost:3002/product/' + id)
@@ -24,8 +30,53 @@ function Product() {
 
                 setProduct(data[0]);
                 setIngredients(data[0].Ingredients)
+
+                setSelectedVariant(data[0].Variants[0]);
+                setSelectedPrice(data[0].Variants[0].Price);
             });
     }, [id]);
+
+    const addProductToRoutine = async () => {
+        if(timePeriod === '') return;
+        product.Price = selectedPrice !== null ? selectedPrice : product.Variants[0].Price;
+
+        const productData = {
+            id: product.ProductID,
+            name: product.ProductName,
+            price: product.Price,
+            brand: product.BrandName,
+            category: product.ProductTypeName,
+            photo: product.ProductPhoto,
+            skinType: product.SkinType,
+            ingredients: ingredients,
+        };
+
+        // check first is there any routine in local storage
+        let routine = JSON.parse(localStorage.getItem('routine'));
+
+        if (routine === null) {
+            // if no routine, create a new routine
+            const newRoutineID = await generateIdAndCreateRoutine();
+            routine = {id: newRoutineID, name: 'Default Routine', description: 'Just a default routine to get you started. Feel free to edit it to your liking.', steps: [], products: [], AM: {products: []}, PM: {products: []}};
+            localStorage.setItem('routine', JSON.stringify(routine));
+        }
+
+        // add product to the correct routine (AM or PM) based on the timePeriod state
+        if (timePeriod === 'AM') {
+            routine.AM.products.push(productData);
+        } else if (timePeriod === 'PM') {
+            routine.PM.products.push(productData);
+        }
+
+        localStorage.setItem('routine', JSON.stringify(routine));
+
+        // redirect to routine page
+        navigate('/routine/' + routine.id);
+    }
+
+    const handleInputChange = (event) => {
+        setTimePeriod(event.target.value);
+    };
 
     return (
         <div className="p-10">
@@ -33,7 +84,9 @@ function Product() {
                 <span className="loading loading-ring loading-lg align-middle"/>
             ) : (
                 <>
-                    <BreadCrumbs productType={product.ProductTypeName}/>
+                    <div className="pl-4">
+                        <BreadCrumbs productType={product.ProductTypeName}/>
+                    </div>
                     <div className="flex container mx-auto p-4">
                         <Helmet>
                             <title>{product.ProductName + " | Skingredients"}</title>
@@ -50,14 +103,18 @@ function Product() {
                                 <IngredientBadge ingredients={ingredients}/>
 
                                 {product.Variants.length > 1 && (
-                                    // Display variants(with price and amount)
                                     <div className="flex flex-row gap-2 justify-left">
                                         {product.Variants.map((variant, index) => {
                                             return (
-                                                <div key={index} className="flex items-center gap-2 border rounded mt-2 p-1">
+                                                <button key={index} className={`flex items-center gap-2 border rounded 
+                                                mt-2 p-1 hover:bg-gray-100 ${variant === selectedVariant ? 'bg-gray-200 border-primary border-2' : ''}`}
+                                                        onClick={() => {
+                                                            setSelectedPrice(variant.Price);
+                                                            setSelectedVariant(variant);
+                                                        }}>
                                                     <p className="font-bold text-gray-800">${variant.Price}</p>
                                                     <p className="text-gray-500 text-sm">{variant.Amount}</p>
-                                                </div>
+                                                </button>
                                             );
                                         })}
                                     </div>
@@ -95,10 +152,20 @@ function Product() {
                                         </div>
                                     </div>
                                 </div>
-                                {/*<button*/}
-                                {/*    className="btn m-3 btn-primary text-right ml-auto">*/}
-                                {/*    <i className="fa-solid fa-plus"/>Add to Routine*/}
-                                {/*</button>*/}
+                                <div className="flex flex-col">
+                                    <select name="timePeriod" onChange={handleInputChange}
+                                            className="text-sm font-light w-40 text-center my-2 bg-gray-100 border-b-2 border-primary p-2 rounded-md">
+                                        <option value="" defaultValue="AM">Select Time Period</option>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                    <button className="btn btn-neutral mr-auto"
+                                            onClick={() => addProductToRoutine()}>
+                                        <i className="fa-solid fa-plus"/>Add to Routine
+                                    </button>
+                                </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -106,52 +173,6 @@ function Product() {
             )}
         </div>
     );
-}
-
-function SkinTypeBadge({SkinType}) {
-    // split by comma
-    const SkinTypes = SkinType.trim().split(",");
-    //Trim the whitespace
-    SkinTypes.forEach((type, index) => {
-        SkinTypes[index] = type.trim();
-    });
-
-    return (
-        <div className="space-x-2 pb-1">
-            {SkinTypes.includes("Oily") && <div className="badge badge-lg badge-error">Oily</div>}
-            {SkinTypes.includes("Dry") && <div className="badge badge-lg badge-success">Dry</div>}
-            {SkinTypes.includes("Combination") && <div className="badge badge-lg badge-warning">Combination</div>}
-            {SkinTypes.includes("Normal") && <div className="badge badge-lg badge-primary">Normal</div>}
-            {SkinTypes.includes("Sensitive") && <div className="badge badge-lg badge-accent">Sensitive</div>}
-        </div>
-    );
-}
-
-function IngredientBadge({ingredients}) {
-    const lowerCaseIngredients = ingredients.map(ingredient => ingredient.toString().toLowerCase());
-
-    const matchedIngredients = activeIngredients.activeIngredients.filter(ingredient => {
-        const lowerCaseName = ingredient.name.toLowerCase();
-        const lowerCaseAssociatedIngredients = ingredient.associated_ingredients.map(ingredient => ingredient.toString().toLowerCase());
-
-        return lowerCaseIngredients.some(productIngredient => productIngredient.includes(lowerCaseName)) ||
-            lowerCaseAssociatedIngredients.some(associatedIngredient => lowerCaseIngredients.some(productIngredient => productIngredient.includes(associatedIngredient)));
-    });
-
-    return (
-        <div className="flex gap-3">
-            {matchedIngredients.map((ingredient, index) => {
-                return (
-                    <div className="tooltip" data-tip={ingredient.benefits} key={index}>
-                        <div className="badge badge-lg badge-primary">
-                            {ingredient.name}
-                        </div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-
 }
 
 

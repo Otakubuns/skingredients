@@ -1,42 +1,60 @@
 {"recommendedRoutines": [
-    {
-      "name" : "Dry Skin Routine",
-        "description" : "This routine is perfect for those with dry skin",
-        "steps" : [
-            {
-                "name" : "Cleanser",
-                "description" : "Use a gentle cleanser to remove dirt and oil from your skin",
-                "products" : [
-                    {
-                        "name" : "Cleanser",
-                        "brand" : "Cetaphil",
-                        "price" : "$10"
-                    }
-                ]
-            },
-            {
-                "name" : "Exfoliator",
-                "description" : "Use a gentle exfoliator to remove dead skin cells",
-                "products" : [
-                    {
-                        "name" : "Exfoliator",
-                        "brand" : "Neutrogena",
-                        "price" : "$15"
-                    }
-                ]
-            },
-            {
-                "name" : "Moisturize",
-                "description" : "Use a rich moisturizer to hydrate your skin",
-                "products" : [
-                    {
-                        "name" : "Moisturizer",
-                        "brand" : "CeraVe",
-                        "price" : "$20"
-                    }
-                ]
-            }
-        ]
+  {"id":"c2a091",
+    "name":"Normal & Combo Budget Skincare Routine",
+    "description":"From Doctorly Routines: https://www.youtube.com/@Doctorly",
+    "steps":[],
+    "products":[],
+    "AM":{
+      "products":[
+        {
+          "name":"Hydrating Facial Cleanser",
+          "brand":"CeraVe",
+          "ingredients":[],
+          "price":"24.99",
+          "category":"Cleansers",
+          "id":433,
+          "photo":"CeraVe_hydrating_cream-to-foam_Cleansers.jpg",
+          "customID":1712152163059,
+          "customProduct":false
+        },
+        {
+          "name":"Suntouchable! Whoa Glow Spf 30",
+          "brand":"E.L.F. Cosmetics",
+          "ingredients":[["Niacinamide"],["Squalane"]],
+          "price":"18.99",
+          "category":"Face Sunscreen",
+          "id":1451,
+          "photo":"E.L.F. Cosmetics_whoa_glow_spf_30_sunscreen.jpg",
+          "customID":1712163333380,
+          "customProduct":false
+        }
+      ]
+    },
+    "PM":{
+      "products":[
+        {
+          "name":"CeraVe Resurfacing Retinol Serum",
+          "brand":"CeraVe",
+          "ingredients":[["Niacinamide"],["Aqua/Water/Eau"],["Propanediol"],["Dimethicone"],["Cetearyl Ethylhexanoate"],["Ammonium Polyacryloyldimethyl Taurate"],["Dipotassium Glycyrrhizate"],["Potassium Phosphate"],["Hydrogenated Lecithin"],["Ceramide Np"],["Ceramide Ap"],["Ceramide Eop"],["Carbomer"],["Cetearyl Alcohol"],["Behentrimonium Methosulfate"],["Dimethiconol"],["Lecithin"],["Sodium Citrate"],["Retinol"],["Sodium Hyaluronate"],["Sodium Lauroyl Lactylate"],["Cholesterol"],["Phenoxyethanol"],["Isopropyl Myristate"],["Alcohol"],["Caprylyl Glycol"],["Citric Acid"],["Trisodium Ethylenediamine Disuccinate"],["Pentylene Glycol"],["Phytosphingosine"],["Xanthan Gum"],["Polysorbate 20"],["Ethylhexylglycerin"]],
+          "price":"30.99",
+          "category":"Acne & Blemish Treatments",
+          "id":418,
+          "photo":"CeraVe_cerave_resurfacing_Acne & Blemish Treatments.jpg",
+          "customID":1712162241884,
+          "customProduct":false
+        },
+        {
+          "name":"holy hydration face cream - fragrance free",
+          "brand":"E.L.F. Cosmetics",
+          "ingredients":[["Butylene Glycol"],["Water (Aqua)"],["Isohexadecane"],["Glycerin"],["Stearyl Heptanoate"],["Isopropyl Isostearate"],["Niacinamide"],["Cetearyl Olivate"],["Trehalose"],["Squalane"],["Dimethicone"],["STEARIC ACID"],["Aluminum Starch Octenylsuccinate"],["Polymethylsilsesquioxane"],["Sodium Hyaluronate"],["Silica"],["Palmitoyl Tripeptide-1"],["Palmitoyl\nTetrapeptide-7"],["Sorbitan Olivate"],["Panthenol (Vb5)"],["Cetearyl Alcohol"],["Glyceryl\nStearate"],["Peg-100 Stearate"],["Polyisobutene"],["Disodium EDTA"],["Polyacrylate-13"],["POLYETHYLENE"],["Polysorbate 20"],["Caprylyl Glycol"],["Phenoxyethanol"],["Ethylhexylglycerin"],["Carbomer"]],
+          "price":"17.99",
+          "category":"Moisturizers",
+          "id":506,
+          "photo":"E.L.F. Cosmetics_holy_hydration_Moisturizers.jpg",
+          "customID":1712162272600,
+          "customProduct":false
+        }
+      ]
     }
-
+  }
 ]}

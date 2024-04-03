@@ -25,11 +25,12 @@ function App() {
                     <Route path="product/:id" element={<Product/>}/>
                     <Route path="brand/:brand" element={<ProductList/>}/>
                     <Route path="brands" element={<Brands/>}/>
-                    <Route path="/category/:category" element={<ProductList/>}/>
+                    <Route path="category/:category" element={<ProductList/>}/>
                     <Route path="faq" element={<Faq/>}/>
                     <Route path="routine" element={<Routines/>}/>
                     <Route path="routine/:id" element={<RoutineCreator/>}/>
                     <Route path="login" element={<Login/>}/>
+                    <Route path="search/query" element={<ProductList/>}/>
                     <Route path="*" element={<NotFound/>}/>
                 </Route>
             </Routes>

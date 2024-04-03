@@ -121,6 +121,13 @@
         "BPO"
       ],
       "benefits": "Acne treating, antibacterial, exfoliating"
+    },
+    {
+      "name":"Adapalene",
+        "associated_ingredients": [
+            "Differin"
+        ],
+        "benefits": "Acne treating, anti-inflammatory, cell turnover"
     }
   ]
 }

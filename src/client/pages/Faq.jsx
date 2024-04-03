@@ -5,7 +5,7 @@ function Faq() {
                 Frequently Asked Questions
             </p>
 
-            <div tabIndex={0} className="collapse collapse-arrow border-primary border-x-2 border-t-2 border-b rounded">
+            <div tabIndex={0} className="collapse collapse-arrow rounded pt-3">
                 <input type="checkbox" id="faq1"/>
                 <div className="collapse-title text-xl font-medium text-center">
                     What is Skingredients?
@@ -24,11 +24,12 @@ function Faq() {
                     </p>
                 </div>
             </div>
+            <div className="divider"/>
 
-            <div tabIndex={0} className="collapse collapse-arrow border-primary border-x-2 border-y rounded">
+            <div tabIndex={0} className="collapse collapse-arrow rounded">
                 <input type="checkbox" id="faq2"/>
                 <div className="collapse-title text-xl font-medium text-center">
-                    Why don't you have _______ product or brand?
+                    Where is _____ product or brand?
                 </div>
                 <div className="collapse-content text-center">
                     <p>For right now the products we have within the products page are just a small selection of
@@ -39,7 +40,9 @@ function Faq() {
                 </div>
             </div>
 
-            <div tabIndex={0} className="collapse collapse-arrow border-primary border-x-2 border-y rounded">
+            <div className="divider"/>
+
+            <div tabIndex={0} className="collapse collapse-arrow -primary rounded">
                 <input type="checkbox" id="faq3"/>
                 <div className="collapse-title text-xl font-medium text-center">
                     How do I find out more about skincare?
@@ -54,6 +57,7 @@ function Faq() {
                         <li><a href="https://www.youtube.com/c/DrDrayzday">Dr. Dray</a></li>
                         <li><a href="https://dridriss.com/blogs/news">Dr. Shereene Idriss </a></li>
                         <li><a href="https://www.youtube.com/@dr.jennyliu">Dr. Jenny Liu</a></li>
+                        <li><a href="https://www.youtube.com/@LabMuffinBeautyScience">Dr Michelle Wong</a></li>
                     </ul>
                     <ul className="website-links">
                         <div className="font-bold"> Skincare Encyclopedia/Sites </div>
@@ -63,7 +67,9 @@ function Faq() {
                 </div>
             </div>
 
-            <div tabIndex={0} className="collapse collapse-arrow border-primary border-b-2 border-x-2 border-t rounded">
+            <div className="divider"/>
+
+            <div tabIndex={0} className="collapse collapse-arrow rounded">
                 <input type="checkbox" id="faq4"/>
                 <div className="collapse-title text-xl font-medium text-center">
                     How do I know if a product will work with my skin type?
@@ -82,6 +88,10 @@ function Faq() {
                     </p>
                 </div>
             </div>
+
+
+            <div className="divider"/>
+
 
             <p className="pt-8 text-sm font-light text-center">It is important to do your own research and
                 talk to a professional if you have any concerns about your skin.

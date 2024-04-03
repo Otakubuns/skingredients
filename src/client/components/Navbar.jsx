@@ -10,16 +10,16 @@ function MainNav() {
                     <title>Skingredients</title>
                 </Helmet>
                 <div className="navbar-start">
-                    <Link to="/" className="btn btn-ghost text-xl hover:bg-transparent pr-10">
+                    <Link to="/" className="btn btn-ghost text-xl hover:bg-transparent pr-20">
                         <img src="/src/assets/sparkles.png" alt="logo" className="w-10 h-10"/>Skingredients</Link>
 
-                    <SearchBar/>
+                    <SearchBar isNavbar={true}/>
                 </div>
                 <div className="navbar-center hidden lg:flex">
                 </div>
-                <div className="navbar-end">
-                    <Link to="/login" className="btn btn-ghost">Login</Link>
-                </div>
+                {/*<div className="navbar-end">*/}
+                {/*    <Link to="/login" className="btn btn-ghost">Login</Link>*/}
+                {/*</div>*/}
             </div>
             <div className="navbar h-16 font-sans bg-primary">
                 <div className="navbar-center lg:flex max-w-screen-xl mx-auto">

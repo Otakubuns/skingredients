@@ -2,11 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 const {createLogger} = require("vite");
+const {readFile, writeFile} = require("fs");
+const {join} = require("path");
 
 const app = express();
 const PORT = 3002;
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173'
+}));
 app.use(express.json());
 
 
@@ -225,40 +229,44 @@ app.get('/product/:id', (req, res) => {
     WHERE IL.ProductID = ?`;
 
     db.query(productSql, [id], (err, productResult) => {
-        if (err) {
-            console.log(err);
-        } else {
-            db.query(ingredientsSql, [id], (err, ingredientsResult) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    if (productResult.length > 0) {
-                        // Create new product object
-                        let product = {
-                            ProductID: productResult[0].ProductID,
-                            ProductName: productResult[0].ProductName,
-                            ProductDescription: productResult[0].ProductDescription,
-                            SkinType: productResult[0].SkinType,
-                            IsLuxury: productResult[0].IsLuxury,
-                            BrandName: productResult[0].BrandName,
-                            ProductTypeName: productResult[0].ProductTypeName,
-                            ProductPhoto: productResult[0].ProductPhoto,
-                            Variants: [],
-                            Ingredients: ingredientsResult.map((ingredient) => {
-                                return [ingredient.IngredientName];
-                            })
-                        };
+        try {
+            if (err) {
+                console.log(err);
+            } else {
+                db.query(ingredientsSql, [id], (err, ingredientsResult) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        if (productResult.length > 0) {
+                            // Create new product object
+                            let product = {
+                                ProductID: productResult[0].ProductID,
+                                ProductName: productResult[0].ProductName,
+                                ProductDescription: productResult[0].ProductDescription,
+                                SkinType: productResult[0].SkinType,
+                                IsLuxury: productResult[0].IsLuxury,
+                                BrandName: productResult[0].BrandName,
+                                ProductTypeName: productResult[0].ProductTypeName,
+                                ProductPhoto: productResult[0].ProductPhoto,
+                                Variants: [],
+                                Ingredients: ingredientsResult.map((ingredient) => {
+                                    return [ingredient.IngredientName];
+                                })
+                            };
 
-                        // Split the variants string into an array of variant objects
-                        product.Variants = productResult[0].Variants.split('; ').map(variant => {
-                            let [amount, price] = variant.split(' - $');
-                            return {Amount: amount, Price: price};
-                        });
+                            // Split the variants string into an array of variant objects
+                            product.Variants = productResult[0].Variants.split('; ').map(variant => {
+                                let [amount, price] = variant.split(' - $');
+                                return {Amount: amount, Price: price};
+                            });
 
-                        res.send([product]);
+                            res.send([product]);
+                        }
                     }
-                }
-            });
+                });
+            }
+        } catch (e) {
+            console.log(e);
         }
     });
 });
@@ -280,6 +288,90 @@ app.get('/autosuggest', (req, res) => {
     );
 
     res.json({suggestions: filteredSuggestions.slice(0, 5)});
+});
+
+app.post('/saveRoutine', (req, res) => {
+    const routineData = req.body;
+    const filePath = join(__dirname, 'src/client/utils/routines.json');
+
+    readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('An error occurred while reading the routines file:', err);
+            res.status(500).send({message: 'An error occurred while reading the routines file.'});
+            return;
+        }
+
+        let routines = JSON.parse(data);
+        if (!routines.recommendedRoutines) {
+            routines.recommendedRoutines = [];
+        }
+
+        routines.recommendedRoutines.push(routineData);
+
+        writeFile(filePath, JSON.stringify(routines, null, 2), (err) => {
+            if (err) {
+                console.error('An error occurred while writing the routine to the file:', err);
+                res.status(500).send({message: 'An error occurred while writing the routine to the file.'});
+            } else {
+                console.log('Routine saved successfully.');
+                res.status(200).send({message: 'Routine saved successfully.'});
+            }
+        });
+    });
+});
+
+app.get('/routine/:id', (req, res) => {
+    const id = req.params.id;
+
+    // SQL query to check if a routine with the provided ID already exists
+    const checkSql = 'SELECT * FROM Routines WHERE RoutineID = ?';
+
+    db.query(checkSql, id, (err, result) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send({message: 'An error occurred while checking for existing routine.'});
+        } else if (result.length > 0) {
+            console.log("Routine already exists")
+            // If a routine with the provided ID already exists, return a 400 status code
+            res.status(400).send({message: 'A routine with this ID already exists.'});
+        } else {
+            // If no routine with the provided ID exists, send a success message
+            res.send({message: 'No routine with this ID exists.'});
+        }
+    });
+});
+
+app.post('/routine/create/:id', (req, res) => {
+    const id = req.params.id;
+
+    // SQL query to check if a routine with the provided ID already exists
+    const checkSql = 'SELECT * FROM Routines WHERE RoutineID = ?';
+
+    db.query(checkSql, id, (err, result) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send({message: 'An error occurred while checking for existing routine.'});
+        } else if (result.length > 0) {
+            // If a routine with the provided ID already exists, return a 400 status code
+            res.status(400).send({message: 'A routine with this ID already exists.'});
+        } else {
+            // If no routine with the provided ID exists, create a new routine
+            const insertSql = 'INSERT INTO Routines (RoutineID, RoutineName, RoutineDescription) VALUES (?, ?, ?)';
+            const values = [id, 'New Routine', 'New routine description'];
+
+            db.query(insertSql, values, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send({message: 'An error occurred while creating the routine.'});
+                } else {
+                    res.send({
+                        message: 'Routine created successfully.',
+                        routine: {id, name: 'New Routine', description: 'New routine description'}
+                    });
+                }
+            });
+        }
+    });
 });
 
 app.listen(PORT, () => {
