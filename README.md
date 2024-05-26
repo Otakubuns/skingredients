@@ -40,6 +40,8 @@ The Routine Creator is not perfect and some bugs need fixing. Future improvement
 - Check for even more types of ingredient incompatibility
 - Addition of more Canadian websites(Sephora)
 - Additional features to make routine creation even more user-friendly.
+- User profiles as well for proper storage of routines and sharing of custom routines
+- More premade recommended routines
 
 ## Deployment Status
 
