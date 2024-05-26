@@ -2,7 +2,8 @@
 
 ![Skingredients Logo](https://github.com/Otakubuns/skingredients/assets/77337386/9ab42cb1-199b-45eb-8f89-28c091cd8751)
 
-**Skingredients** is a website created with the purpose of providing reliable skincare information on drugstore products. This capstone project was designed to be both useful and engaging, combining my interest in skincare with the practical application of my skills.
+**Skingredients** is a website created to provide reliable skincare information on drugstore products. 
+This was my capstone project and was designed to be useful and engaging, combining my interest in skincare with the practical application of my skills from my program.
 
 ## Features
 
@@ -26,14 +27,20 @@ The **Routine Creator** helps you build personalized skincare routines. Here’s
 - **Include Custom Products** and get ingredient information and compatibility checks if ingredient details are provided.
 - **Cost of Routine** to understand how expensive your routine could be.
 
+The routine creator can also be run without the server if only inputting custom products.
+
 ![Example of Routine Creator](https://github.com/Otakubuns/skingredients/assets/77337386/5c8a8c44-e864-49ed-8f30-d6f497f0cf63)
 
 ## Future Improvements
 
-The Routine Creator is not perfect and there are some bugs that need fixing. Future improvements will include:
+The Routine Creator is not perfect and some bugs need fixing. Future improvements will include:
 
 - Improved product orders for every category of product
 - Improved compatibility checks for custom products.
-- Check for even more types of ingredient incompatability
+- Check for even more types of ingredient incompatibility
 - Addition of more Canadian websites(Sephora)
 - Additional features to make routine creation even more user-friendly.
+
+## Deployment Status
+
+Currently, Skingredients is not deployed. There are plans to deploy the website once the Routine Creator is fully finished and all major bugs are fixed. Stay tuned for updates!
