@@ -1,8 +1,12 @@
-# React + Vite
+# Skingredients
+Skingredients is a website created with the purpose of giving good skincare information on drugstore products.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This was my capstone project and I wanted it to be something that not only eas useful but also something I had an interest in.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+Products Page:
+![Example of Products Page](https://github.com/Otakubuns/skingredients/assets/77337386/e7fbe610-7fb4-4d8b-a06e-87c7f79f0e55)
+
+
+![image](https://github.com/Otakubuns/skingredients/assets/77337386/a70eee9b-537c-4d6b-84af-c077df8c8af7)
