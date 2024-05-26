@@ -6,7 +6,7 @@ import {faEdit, faPlus, faSave, faTimes, faTrash} from "@fortawesome/free-solid-
 import SearchBar from "../components/SearchBar.jsx";
 import InputField from "../components/InputField.jsx";
 import IngredientBadge from "../components/IngredientBadge.jsx";
-import fs from 'fs';
+import activeIngredients from "../utils/activeingredients.json";
 
 
 function RoutineCreator() {
@@ -14,36 +14,53 @@ function RoutineCreator() {
     const [isEditing, setIsEditing] = useState(false);
     const [currentProductIndex, setCurrentProductIndex] = useState(null);
     const [editingProduct, setEditingProduct] = useState(null);
-    const [counter, setCounter] = useState(0);
     const [selectedProduct, setSelectedProduct] = useState({});
     const [isAddingProduct, setIsAddingProduct] = useState(false);
     const [currentRoutine, setCurrentRoutine] = useState('AM');
+    const [isAMNoticesOpen, setIsAMNoticesOpen] = useState(true);
+    const [isPMNoticesOpen, setIsPMNoticesOpen] = useState(true);
     const AM_SKINCARE_ORDER = ["cleanser", "toner", "brightening", "serum", "eye cream", "spot treatments", "moisturizer", "face oil", "sunscreen"];
     const PM_SKINCARE_ORDER = ["cleanser", "exfoliator", "toner", "serum", "eye cream", "spot treatments", "anti-aging", "moisturizer", "retinol", "face oil"];
-    const [notices, setNotices] = useState([]);
+    const [AMNotices, setAMNotices] = useState([]);
+    const [PMNotices, setPMNotices] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
 
     function checkIfRoutineExists(routineID) {
-        return fetch('src/client/utils/routines.json')
-            .then(response => response.json())
-            .then(data => {
-                // Check if the routine with the given ID exists in the data(if it does, return the routine)
-                const routine = data.routines.find(routine => routine.id === routineID);
-                if (routine) {
-                    setRoutine(routine);
-                    return true;
-                } else {
-                    return false;
-                }
-            })
-            .catch(error => {
-                console.error('An error occurred while fetching the routines:', error);
-                return false;
-            });
+        // return fetch('src/client/utils/routines.json')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         // Check if the routine with the given ID exists in the data(if it does, return the routine)
+        //         const routine = data.routines.find(routine => routine.id === routineID);
+        //         if (routine) {
+        //             setRoutine(routine);
+        //             return true;
+        //         } else {
+        //             return false;
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error('An error occurred while fetching the routines:', error);
+        //         return false;
+        //     });
     }
 
+    // useEffect(() => {
+    //     checkIfRoutineExists(routineID).then();
+    // }, []);
+
     useEffect(() => {
-        checkIfRoutineExists(routineID);
+        const modal = document.getElementById('searchModal');
+
+        const handleModalClose = () => {
+            setIsAddingProduct(false);
+        };
+
+        modal.addEventListener('close', handleModalClose);
+
+        // Clean up the event listener when the component is unmounted
+        return () => {
+            modal.removeEventListener('close', handleModalClose);
+        };
     }, []);
 
     useEffect(() => {
@@ -160,110 +177,147 @@ function RoutineCreator() {
         setEditingProduct(null);
     };
 
+    const handleSelectedProductChange = (selectedProduct) => {
+        const newProduct = {
+            name: selectedProduct.ProductName,
+            brand: selectedProduct.BrandName,
+            ingredients: selectedProduct.Ingredients,
+            price: selectedProduct.Variants[0].Price,
+            category: selectedProduct.ProductTypeName,
+            id: selectedProduct.ProductID,
+            photo: selectedProduct.ProductPhoto,
+            customID: Date.now(),
+            customProduct: false
+        }
+
+        const productExists = routine[currentRoutine].products.some(product => product.id === newProduct.id);
+
+        if (!productExists) {
+            setRoutine({
+                ...routine,
+                [currentRoutine]: {
+                    ...routine[currentRoutine],
+                    products: [...routine[currentRoutine].products, newProduct]
+                }
+            });
+        }
+        else{
+            alert('This product already exists in routine');
+        }
+
+        document.getElementById('searchModal').close();
+    };
+
+    const handleRoutineChange = (event) => {
+        setRoutine({
+            ...routine,
+            [event.target.name]: event.target.value
+        });
+    }
+
     useEffect(() => {
-        // Get rid of duplicate products(just for price)
-        const uniqueProducts = routine.AM.products.concat(routine.PM.products).filter((product, index, self) => index === self.findIndex(p => p.id === product.id));
-        setTotalPrice(routine.AM.products.reduce((total, product) => total + parseFloat(product.price), 0) + routine.PM.products.reduce((total, product) => total + parseFloat(product.price), 0));
+        // Set the total price of the routine
+        let totalPrice = 0;
+        let addedProducts = [];
 
-        // Check for skincare mistakes
-        setNotices([]);
+        routine.AM.products.concat(routine.PM.products).forEach(product => {
+            if (!addedProducts.includes(product.name)) {
+                totalPrice += parseFloat(product.price);
+                addedProducts.push(product.name);
+            }
+        });
 
+        setTotalPrice(totalPrice);
 
+        setAMNotices([]);
+        setPMNotices([]);
+
+        // Checking for common skincare routine mistakes or missing products
         const hasSunscreen = routine.AM.products.some(product => product.category.toLowerCase().includes('sunscreen'));
+
         if (!hasSunscreen) {
-            addNotice('Consider adding a sunscreen to your Morning routine');
-        }
-        else {
-            addNotice('Use 1 tablespoon of sunscreen for your face and neck');
+            addNotice('AM', createStyledNotice('☀️ Make sure to add sunscreen to your morning routine. Sunscreen is essential for protecting your skin from UV damage.', '.'));
         }
 
-        const hasActiveCleanser = routine.PM.products.some(product => {
-            // Flatten the ingredients array
-            const ingredients = [].concat(...product.ingredients);
-            return ingredients.some(ingredient => ingredient.toLowerCase().includes('salicylic acid') || ingredient.toLowerCase().includes('glycolic acid')
-            || ingredient.toLowerCase().includes('lactic acid') || ingredient.toLowerCase().includes('mandelic acid') || ingredient.toLowerCase().includes('benzoyl peroxide'));
+        const hasCleanser = routine.PM.products.some(product => product.category.toLowerCase().includes('cleanser'));
 
-        });
-        if (hasActiveCleanser) {
-            addNotice('Your nighttime cleanser has active ingredients. Leaving it on your skin for a minute or two will help them work better.')
+        if (!hasCleanser) {
+            addNotice('PM', createStyledNotice('🧼 Make sure to add a cleanser to your night routine. Cleansing your skin is essential for removing dirt, oil, and makeup.', '.'));
         }
 
-        const hasActiveAMCleanser = routine.AM.products.some(product => {
-            // Flatten the ingredients array
-            const ingredients = [].concat(...product.ingredients);
-            return ingredients.some(ingredient => ingredient.toLowerCase().includes('salicylic acid') || ingredient.toLowerCase().includes('glycolic acid')
-                || ingredient.toLowerCase().includes('lactic acid') || ingredient.toLowerCase().includes('mandelic acid') || ingredient.toLowerCase().includes('benzoyl peroxide'));
-
-        });
-        if (hasActiveAMCleanser) {
-            addNotice('Your morning cleanser has active ingredients. Leaving it on your skin for a minute or two can help them work better.')
+        const hasAMMoisturizer = routine.AM.products.some(product => product.category.toLowerCase().includes('moisturizer'));
+        if(!hasAMMoisturizer){
+            addNotice('AM', createStyledNotice('💧 Make sure to add a moisturizer to your morning routine. Moisturizing your skin helps keep it hydrated and healthy.', '.'));
         }
 
-        const hasVitaminC = routine.AM.products.some(product => {
-            // Flatten the ingredients array
-            const ingredients = [].concat(...product.ingredients);
-            return ingredients.some(ingredient => ingredient.toLowerCase().includes('vitamin c'));
-        });
-        const hasAHA = routine.AM.products.some(product => {
-            // Flatten the ingredients array
-            const ingredients = [].concat(...product.ingredients);
-            // search for AHAs in the ingredients(glycolic acid, lactic acid, mandelic acid, etc.)
-            let acids = ["glycolic acid", "lactic acid", "mandelic acid"];
-            return ingredients.some(ingredient => acids.includes(ingredient.toLowerCase()));
-        });
-
-        if (hasVitaminC && hasAHA) {
-            addNotice('Vitamin C and AHAs can be used together but can cause irritation to some people. If you are new to skincare, consider using them on alternate days.');
+        const hasPMMoisturizer = routine.PM.products.some(product => product.category.toLowerCase().includes('moisturizer'));
+        if(!hasPMMoisturizer){
+            addNotice('PM', createStyledNotice('💧 Make sure to add a moisturizer to your night routine. Moisturizing your skin helps keep it hydrated and healthy.', '.'));
         }
 
-        const hasAMRetinol = routine.AM.products.some(product => {
-            // Flatten the ingredients array
-            const ingredients = [].concat(...product.ingredients);
-            return ingredients.some(ingredient => ingredient.toLowerCase().includes('retinol'));
-        });
-        if (hasAMRetinol) {
-            addNotice('Make sure that the retinol in your morning routine is made for daytime use. If not, consider moving it to your PM routine.')
-        }
+        // Check for active cleansers
+        checkAndAddNotice('PM', ingredient => ['salicylic acid', 'glycolic acid', 'lactic acid', 'mandelic acid', 'benzoyl peroxide'].includes(ingredient), createStyledNotice('🧼 Your cleanser has active ingredients. Leaving it on your skin for a minute or two can help them work better.', '.'));
 
-        //check if there is benzoyl peroxide in either routine
-        const hasBenzoylPeroxide = routine.AM.products.some(product => {
-                // Flatten the ingredients array
-                const ingredients = [].concat(...product.ingredients);
-                return ingredients.some(ingredient => ingredient.toLowerCase().includes('benzoyl peroxide'));
-            }
-        ) || routine.PM.products.some(product => {
-                // Flatten the ingredients array
-                const ingredients = [].concat(...product.ingredients);
-                return ingredients.some(ingredient => ingredient.toLowerCase().includes('benzoyl peroxide'));
-            }
-        );
+        // Check for active AM cleansers
+        checkAndAddNotice('AM', ingredient => ['salicylic acid', 'glycolic acid', 'lactic acid', 'mandelic acid', 'benzoyl peroxide'].includes(ingredient), createStyledNotice('🧼 Your morning cleanser has active ingredients. Leaving it on your skin for a minute allows the actives to activate.', '.'));
 
-        if (hasBenzoylPeroxide) {
-            addNotice('Benzoyl Peroxide will cancel out Vitamin C & retinol(not Adapelene)')
-        }
+        // Check for retinol
+        checkAndAddNotice('PM', ingredient => ingredient.includes('retinol', 'retinoid', 'Vitamin A'), '🧴 Retinol can increase your skin\'s sensitivity to the sun, so be sure to apply sunscreen during the day. If you\'re new to retinol, start by using it once a week and gradually increase the frequency to give your skin time to adjust.');
 
-        // check if there is a retinol in PM routine(check ingredients(is an array)
-        const hasRetinol = routine.PM.products.some(product => {
-            // Flatten the ingredients array
-            const ingredients = [].concat(...product.ingredients);
-            return ingredients.some(ingredient => ingredient.toLowerCase().includes('retinol'));
-        });
-        if (hasRetinol) {
-            addNotice('Retinol can make your skin more sensitive to the sun. Make sure to use sunscreen in the morning.');
-            addNotice('Retinol can be very irritating to some people. If you have never used retinol before, start by using it once a week and gradually increase the frequency.');
-        }
-
+        CheckForIngredientConflicts();
 
     }, [routine]);
 
-    function addNotice(notice) {
-        setNotices(prevNotices => {
-            if (!prevNotices.includes(notice)) {
-                return [...prevNotices, notice];
-            } else {
-                return prevNotices;
-            }
+    function CheckForIngredientConflicts() {
+        const AMProducts = routine.AM.products;
+        const PMProducts = routine.PM.products;
+
+        const AMIngredients = AMProducts.map(product => [].concat(...product.ingredients));
+        const PMIngredients = PMProducts.map(product => [].concat(...product.ingredients));
+
+        const activeIngredientsList = activeIngredients.activeIngredients;
+
+    }
+
+    function checkAndAddNotice(routineType, checkCondition, noticeMessage) {
+        const hasCondition = routine[routineType].products.some(product => {
+            // Flatten the ingredients array
+            const ingredients = [].concat(...product.ingredients);
+            return ingredients.some(ingredient => checkCondition(ingredient.toLowerCase()));
         });
+        if (hasCondition) {
+            addNotice(routineType, noticeMessage);
+        }
+    }
+
+    function createStyledNotice(notice, split) {
+        const noticeParts = notice.split(split);
+
+        return (
+            <>
+                {noticeParts.map((part, index) => index === 0 ? <strong key={index}>{part}</strong> : split + part)}
+            </>
+        );
+    }
+
+    function addNotice(routineType, notice) {
+        if (routineType === 'AM') {
+            setAMNotices(prevNotices => {
+                if (!prevNotices.includes(notice)) {
+                    return [...prevNotices, notice];
+                } else {
+                    return prevNotices;
+                }
+            });
+        } else if (routineType === 'PM') {
+            setPMNotices(prevNotices => {
+                if (!prevNotices.includes(notice)) {
+                    return [...prevNotices, notice];
+                } else {
+                    return prevNotices;
+                }
+            });
+        }
     }
 
     function sortProductsBySkincareOrder(products, time) {
@@ -283,36 +337,6 @@ function RoutineCreator() {
         });
     }
 
-    const handleSelectedProductChange = (selectedProduct) => {
-        const newProduct = {
-            name: selectedProduct.ProductName,
-            brand: selectedProduct.BrandName,
-            ingredients: selectedProduct.Ingredients,
-            price: selectedProduct.Variants[0].Price,
-            category: selectedProduct.ProductTypeName,
-            id: selectedProduct.ProductID,
-            photo: selectedProduct.ProductPhoto,
-            customID: Date.now(),
-            customProduct: false
-        }
-
-        setRoutine({
-            ...routine,
-            [currentRoutine]: {
-                ...routine[currentRoutine],
-                products: [...routine[currentRoutine].products, newProduct]
-            }
-        });
-
-        document.getElementById('searchModal').close();
-    };
-
-    const handleRoutineChange = (event) => {
-        setRoutine({
-            ...routine,
-            [event.target.name]: event.target.value
-        });
-    }
 
     function saveRecommendedRoutine() {
         fetch('http://localhost:3002/saveRoutine', {
@@ -324,24 +348,25 @@ function RoutineCreator() {
         })
             .then(response => response.json())
             .then(data => {
-               if(data.success) {
-                   // clear the routine
-                     setRoutine({
-                          id: routineID,
-                          name: 'Default Routine',
-                          description: 'Just a default routine to get you started. Feel free to edit it to your liking.',
-                          AM: {
+                if (data.success) {
+                    // clear the routine
+                    setRoutine({
+                        id: routineID,
+                        name: 'Default Routine',
+                        description: 'Just a default routine to get you started. Feel free to edit it to your liking.',
+                        AM: {
                             products: []
-                          },
-                          PM: {
+                        },
+                        PM: {
                             products: []
-                          },
-                          notes: ''
-                     });
-                     // clear notices and memory
-                        setNotices([]);
-                        localStorage.removeItem('routine');
-               }
+                        },
+                        notes: ''
+                    });
+                    // clear notices and memory
+                    setAMNotices([]);
+                    setPMNotices([]);
+                    localStorage.removeItem('routine');
+                }
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -375,28 +400,30 @@ function RoutineCreator() {
 
             <div className="flex items-end justify-between -my-4">
                 <div className="text-left">
-                    <h3 className="font-bold text-2xl">Routine Cost: ${totalPrice.toFixed(2)}</h3>
+                    <h3 className="font-bold text-2xl">Total: ${totalPrice.toFixed(2)}</h3>
                 </div>
                 <div className="text-right">
                     {!isEditing ? (
-                        <button className="btn btn-ghost border-primary border-2 rounded-2xl text-right" onClick={() => {
-                            setIsEditing(true);
-                        }}>
+                        <button className="btn btn-ghost border-primary border-2 rounded-2xl text-right"
+                                onClick={() => {
+                                    setIsEditing(true);
+                                }}>
                             <FontAwesomeIcon icon={faEdit}/>Edit
                         </button>
                     ) : (
-                        <button className="btn btn-ghost border-primary border-2 rounded-2xl text-right" onClick={() => {
-                            setIsEditing(false);
-                        }}>
+                        <button className="btn btn-ghost border-primary border-2 rounded-2xl text-right"
+                                onClick={() => {
+                                    setIsEditing(false);
+                                }}>
                             <FontAwesomeIcon icon={faSave}/>Save
                         </button>
                     )}
 
-                    <button className="btn btn-primary text-right" onClick={() => {
-                        saveRecommendedRoutine();
-                    }}>
-                        Recommend
-                    </button>
+                    {/*<button className="btn btn-primary text-right" onClick={() => {*/}
+                    {/*    saveRecommendedRoutine();*/}
+                    {/*}}>*/}
+                    {/*    Save Routine*/}
+                    {/*</button>*/}
                 </div>
             </div>
 
@@ -404,7 +431,7 @@ function RoutineCreator() {
             <div className="mb-10">
                 <div className="flex items-center">
                     <h2 className="text-4xl font-bold">Morning Routine</h2>
-                    <button className="pl-2" onClick={() => {
+                    <button className="pl-2 tooltip tooltip-secondary" data-tip="Add Product" onClick={() => {
                         setCurrentRoutine('AM');
                         document.getElementById('searchModal').showModal()
                     }}>
@@ -415,6 +442,21 @@ function RoutineCreator() {
                            setIsAddingProduct={setIsAddingProduct} setSelectedProduct={handleSelectedProductChange}/>
 
                 </div>
+                {AMNotices.length > 0 ? (
+                    <div className="collapse collapse-arrow mt-1 mb-3" style={{backgroundColor: '#f3f0f5'}}>
+                        <input type="checkbox" checked={isAMNoticesOpen} onChange={() => setIsAMNoticesOpen(!isAMNoticesOpen)}/>
+                        <div className="collapse-title text-xl font-medium">
+                            Notices/Tips
+                        </div>
+                        <div className="collapse-content">
+                            <ul className="font-light">
+                                {AMNotices.map((notice, index) => (
+                                    <li key={index} className="text-lg">- {notice}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                ) : null}
                 {sortProductsBySkincareOrder(routine.AM.products, 'AM').map((product, index) => (
                     <Product
                         key={product.id || index}
@@ -429,8 +471,8 @@ function RoutineCreator() {
 
             <div className="mb-10">
                 <div className="flex items-center">
-                    <h2 className="text-4xl font-bold">Evening/Night Routine</h2>
-                    <button className="pl-2" onClick={() => {
+                    <h2 className="text-4xl font-bold">Night Routine</h2>
+                    <button className="pl-2 tooltip tooltip-secondary" data-tip="Add Product" onClick={() => {
                         setCurrentRoutine('PM');
                         document.getElementById('searchModal').showModal()
                     }}>
@@ -440,6 +482,21 @@ function RoutineCreator() {
                            isAddingProduct={isAddingProduct} setIsAddingProduct={handleSelectedProductChange}
                            setSelectedProduct={setSelectedProduct}/>
                 </div>
+                {PMNotices.length > 0 ? (
+                    <div className="collapse collapse-arrow mb-3 mt-1" style={{backgroundColor: '#f3f0f5'}}>
+                        <input type="checkbox" checked={isPMNoticesOpen} onChange={() => setIsPMNoticesOpen(!isPMNoticesOpen)}/>
+                        <div className="collapse-title text-xl font-medium">
+                            Notices/Tips
+                        </div>
+                        <div className="collapse-content">
+                            <ul className="font-light">
+                                {PMNotices.map((notice, index) => (
+                                    <li key={index} className="text-lg">- {notice}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                ) : null}
                 {sortProductsBySkincareOrder(routine.PM.products, 'PM').map((product, index) => (
                     <Product
                         key={product.id || index}
@@ -451,16 +508,6 @@ function RoutineCreator() {
                     />
                 ))}
             </div>
-
-            {notices.length > 0 ? (
-                <div className="notices">
-                    {notices.map((notice, index) => (
-                        <div key={index} className="notice">
-                            {notice}
-                        </div>
-                    ))}
-                </div>
-            ) : null}
         </div>
 
     );

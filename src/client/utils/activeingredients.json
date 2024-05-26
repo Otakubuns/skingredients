@@ -34,28 +34,29 @@
     {
       "name": "Sulfur",
       "associated_ingredients": [
-        "Sulphur"
       ],
       "benefits": "Acne treating, oil controlling, anti-inflammatory"
     },
     {
       "name": "Salicylic Acid",
       "associated_ingredients": [
-        "Beta Hydroxy Acid (BHA)"
+        "Salicylate",
+        "Acetylsalicylic Acid"
       ],
       "benefits": "Exfoliating, acne treating, unclogging pores"
     },
     {
       "name": "Glycolic Acid",
       "associated_ingredients": [
-        "Alpha Hydroxy Acid (AHA)"
+        "Hydroxyacetic Acid",
+        "Alpha-Hydroxyacetic Acid",
+        "Hydroxyethanoic Acid"
       ],
       "benefits": "Exfoliating, skin texture improving, brightening"
     },
     {
       "name": "Lactic Acid",
       "associated_ingredients": [
-        "Alpha Hydroxy Acid (AHA)"
       ],
       "benefits": "Exfoliating, hydrating"
     },
@@ -65,13 +66,6 @@
         "Tocopherol"
       ],
       "benefits": "Antioxidant, skin barrier supporting, hydrating"
-    },
-    {
-      "name": "Peptides",
-      "associated_ingredients": [
-        "Amino Acids"
-      ],
-      "benefits": "Anti-aging, collagen synthesizing, skin firming"
     },
     {
       "name": "Ceramides",
@@ -118,7 +112,8 @@
     {
       "name": "Benzoyl Peroxide",
       "associated_ingredients": [
-        "BPO"
+        "Benzoperoxide",
+        "Dibenzoyl Peroxide"
       ],
       "benefits": "Acne treating, antibacterial, exfoliating"
     },

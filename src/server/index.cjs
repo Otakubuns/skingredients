@@ -4,6 +4,8 @@ const mysql = require('mysql');
 const {createLogger} = require("vite");
 const {readFile, writeFile} = require("fs");
 const {join} = require("path");
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = 3002;
@@ -15,12 +17,8 @@ app.use(express.json());
 
 
 // Create a connection to the database
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'skincaredb'
-});
+const dbConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '../../db_config.json'), 'utf8'));
+const db = mysql.createConnection(dbConfig);
 
 // Connect to the database
 db.connect((err) => {
@@ -122,7 +120,6 @@ app.get('/products', (req, res) => {
     }
 
     const sql = generateSql(filters, true, limit, offset, sort);
-    console.log(sql)
 
     db.query(sql, (err, result) => {
         if (err) {
